@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Viora tools</title>
+<link rel="icon" href="icon.png">
+
+<!-- تطبيق الثيم قبل الرسم لمنع الوميض عند التحميل -->
+<script>
+(function () {
+  var saved = null;
+  try { saved = localStorage.getItem("theme"); } catch (e) {}
+  var sysDark = window.matchMedia &&
+                window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var theme = saved || (sysDark ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+</script>
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="loader" id="loader"><span></span></div>
+<div class="layout">
+
+  <!-- ===== الشريط الجانبي ===== -->
+  <aside class="sidebar">
+    <div class="logo" style="background-image: url(icon.png);background-size: cover;"></div>
+
+    <nav class="nav">
+      <!-- المؤشر المتحرك -->
+      <span class="indicator" id="indicator"></span>
+
+      <a href="#/home" class="nav-item active" data-page="home">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+        <span class="tip">الرئيسية</span>
+      </a>
+
+      <a href="#/code" class="nav-item" data-page="code">
+        <svg viewBox="0 0 24 24"><path d="m9 8-5 4 5 4"/><path d="m15 8 5 4-5 4"/><path d="M13 5.5 11 18.5"/></svg>
+        <span class="tip">الكود</span>
+      </a>
+
+      <a href="#/barcode" class="nav-item" data-page="barcode">
+        <svg viewBox="0 0 24 24"><path d="M3 5v14"/><path d="M6.5 5v14"/><path d="M10 5v14"/><path d="M13.5 5v14"/><path d="M17 5v14"/><path d="M20.5 5v14"/></svg>
+        <span class="tip">الباركود</span>
+      </a>
+    </nav>
+
+    <!-- ===== أسفل الشريط: التبديل ثم الإعدادات ===== -->
+    <div class="cvv00434r">
+      <hr class="hr-si">
+      <div class="sidebar-bottom">
+      
+        <!-- زر التبديل بين الوضع الليلي والنهاري -->
+        <button type="button" class="nav-item" id="themeToggle"
+                title="تبديل الوضع" aria-label="تبديل الوضع الليلي/النهاري">
+          <svg class="icon-sun" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24">
+            <path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8Z"/>
+          </svg>
+          <span class="tip" id="themeTip">الوضع الليلي</span>
+        </button>
+      
+        <!-- زر الإعدادات -->
+        <a href="#/settings" class="nav-item settings" data-page="settings" title="الإعدادات">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3.1"/>
+            <path d="M19.4 14.5a1.6 1.6 0 0 0 .3 1.8l.1.1a1.9 1.9 0 1 1-2.7 2.7l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a1.9 1.9 0 1 1-3.8 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a1.9 1.9 0 1 1-2.7-2.7l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3.6a1.9 1.9 0 1 1 0-3.8h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a1.9 1.9 0 1 1 2.7-2.7l.1.1a1.6 1.6 0 0 0 1.8.3h.1a1.6 1.6 0 0 0 1-1.5v-.2a1.9 1.9 0 1 1 3.8 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a1.9 1.9 0 1 1 2.7 2.7l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1h.2a1.9 1.9 0 1 1 0 3.8h-.1a1.6 1.6 0 0 0-1.5 1Z"/>
+          </svg>
+          <span class="tip">الإعدادات</span>
+        </a>
+      
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== منطقة المحتوى ===== -->
+  <main class="content">
+    <div id="app"></div>
+  </main>
+
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/drawer.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

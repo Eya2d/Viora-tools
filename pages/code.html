@@ -1,0 +1,133 @@
+<div class="page-head">
+  <h1>Viora tools - SVG</h1>
+  <p>تتبّع دقيق للبكسل مع ملاءمة منحنيات بيزييه — يعمل بالكامل داخل متصفحك.</p>
+</div>
+
+<div class="vec">
+
+  <!-- ============ لوحة التحكم ============ -->
+  <div class="panel">
+
+    <div class="drop" id="drop">
+      <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <b>اسحب صورة هنا</b>
+      <span>أو انقر للاختيار · أو الصق (Ctrl+V)</span>
+      <input type="file" id="file" accept="image/*" hidden>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <div class="field">
+      <label for="mode">نمط التحويل</label>
+      <select id="mode">
+        <option value="color">ألوان كاملة</option>
+        <option value="gray">تدرّج رمادي</option>
+        <option value="bw">أبيض وأسود (خطوط/شعارات)</option>
+        <option value="exact">طبق الأصل — بلا فقدان (100%)</option>
+      </select>
+    </div>
+
+    <div class="field" id="f-colors">
+      <label for="colors">عدد الألوان <b id="v-colors">64</b></label>
+      <input type="range" id="colors" min="2" max="256" step="1" value="64">
+      <div class="hint">كلّما زاد العدد زادت التفاصيل اللونية وحجم الملف.</div>
+      <label class="check" style="margin:9px 0 0"><input type="checkbox" id="autocolors" checked> اختيار تلقائي حسب غنى الصورة</label>
+    </div>
+
+    <div class="field" id="f-threshold" hidden>
+      <label for="threshold">عتبة السطوع <b id="v-threshold">128</b></label>
+      <input type="range" id="threshold" min="1" max="254" step="1" value="128">
+    </div>
+
+    <div class="field" id="f-simplify">
+      <label for="simplify">التبسيط <b id="v-simplify">0.0</b></label>
+      <input type="range" id="simplify" min="0" max="4" step="0.1" value="0">
+      <div class="hint">0 = مطابقة البكسل حرفياً (أدق وأثقل). القيم الأعلى تنعّم الحواف.</div>
+    </div>
+
+    <div class="field" id="f-curve">
+      <label for="curve">دقة المنحنيات <b id="v-curve">0.1</b></label>
+      <input type="range" id="curve" min="0.1" max="4" step="0.1" value="0.1">
+      <div class="hint">أقصى انحراف مسموح للمنحنى عن الحدّ الأصلي بالبكسل.</div>
+    </div>
+
+    <div class="field" id="f-corner">
+      <label for="corner">حدّ الزاوية الحادّة <b id="v-corner">75°</b></label>
+      <input type="range" id="corner" min="20" max="150" step="5" value="75">
+    </div>
+
+    <div class="field" id="f-blur">
+      <label for="blur">تنعيم مسبق <b id="v-blur">0</b></label>
+      <input type="range" id="blur" min="0" max="4" step="1" value="0">
+      <div class="hint">يفيد مع الصور الفوتوغرافية المشوّشة أو المضغوطة.</div>
+    </div>
+
+    <div class="field" id="f-minarea">
+      <label for="minarea">تجاهل البقع الأصغر من <b id="v-minarea">0</b></label>
+      <input type="range" id="minarea" min="0" max="60" step="1" value="0">
+    </div>
+
+    <div class="field" id="f-seam">
+      <label for="seam">معالجة الحدود بين الألوان</label>
+      <select id="seam">
+        <option value="hairline">حدّ شعري (موصى به)</option>
+        <option value="stacked">طبقات متراكمة</option>
+        <option value="none">بدون معالجة</option>
+      </select>
+      <div class="hint">يمنع ظهور خطوط رفيعة بين المناطق الملوّنة عند العرض.</div>
+    </div>
+
+    <div class="field" id="f-maxdim">
+      <label for="maxdim">دقة المعالجة</label>
+      <select id="maxdim">
+        <option value="0">الأصلية (أعلى دقة)</option>
+        <option value="2048">حتى 2048 بكسل</option>
+        <option value="1280">حتى 1280 بكسل</option>
+        <option value="800">حتى 800 بكسل</option>
+      </select>
+      <div class="hint">إحداثيات الناتج تُقاس دائماً بأبعاد الصورة الأصلية.</div>
+    </div>
+
+    <div class="hint" id="exact-note" hidden style="margin:0 0 12px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--hover)">
+      كل لون فريد في الصورة يصبح مساراً مستقلاً بحدود مطابقة للبكسل تماماً،
+      بلا تكميم ولا تبسيط ولا تنعيم. الناتج مطابق للأصل ١٠٠٪ عند حجمه الطبيعي،
+      لكن حجم الملف يكبر كثيراً مع الصور الفوتوغرافية.
+    </div>
+
+    <label class="check" id="c-grad"><input type="checkbox" id="gradients" checked> تدرّجات ناعمة (يمنع التشريط)</label>
+    <label class="check" id="c-smooth"><input type="checkbox" id="smooth" checked> منحنيات ناعمة (بيزييه)</label>
+    <label class="check" id="c-transbg"><input type="checkbox" id="transbg"> خلفية شفافة (حذف أكبر طبقة)</label>
+    <label class="check"><input type="checkbox" id="auto" checked> تحديث تلقائي عند التغيير</label>
+
+    <button class="btn" id="go" disabled>تحويل</button>
+    <button class="btn ghost" id="cancel" style="margin-top:8px">إلغاء</button>
+
+    <div class="bar"><i id="bar"></i></div>
+    <div class="status" id="status">في انتظار صورة…</div>
+  </div>
+
+  <!-- ============ المعاينة ============ -->
+  <div>
+    <div class="stage-bar">
+      <div class="seg small" id="view">
+        <button type="button" data-v="svg" class="on">الناتج SVG</button>
+        <button type="button" data-v="img">الصورة الأصلية</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="dl" style="width:auto;padding:6px 14px;font-size:13px" disabled>تنزيل SVG</button>
+      <button class="btn ghost" id="cp" style="width:auto;padding:6px 14px;font-size:13px" disabled>نسخ الكود</button>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="empty">لم تُحمّل أي صورة بعد.</div>
+    </div>
+
+    <div id="notices"></div>
+    <div class="stats" id="stats"></div>
+    <div class="swatches" id="swatches"></div>
+    <div class="out" id="out" hidden></div>
+  </div>
+
+</div>
+
+<script src="js/code-page.js"></script>

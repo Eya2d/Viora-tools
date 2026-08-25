@@ -1,0 +1,57 @@
+<div class="page-head">
+  <h1>Viora tools - Settings</h1>
+  <p>تفضيلات العرض الخاصة بك، محفوظة على هذا الجهاز.</p>
+</div>
+
+<div class="setting-row">
+  <div>
+    <h3>مظهر الموقع</h3>
+    <p id="theme-state">—</p>
+  </div>
+  <div class="seg" id="theme-seg">
+    <button type="button" data-mode="light">فاتح</button>
+    <button type="button" data-mode="dark">داكن</button>
+    <button type="button" data-mode="system">حسب الجهاز</button>
+  </div>
+</div>
+
+<div class="grid" style="margin-top:22px">
+  <div class="card">
+    <h3>الوضع الافتراضي</h3>
+    <p>عند أول زيارة يتبع الموقع إعداد جهازك تلقائياً. أي اختيار يدوي هنا يُحفظ ويُطبَّق في الزيارات القادمة.</p>
+  </div>
+  <div class="card">
+    <h3>العودة للافتراضي</h3>
+    <p>اختر «حسب الجهاز» لحذف الاختيار المحفوظ والعودة لمتابعة إعداد النظام.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var seg   = document.getElementById('theme-seg');
+  var state = document.getElementById('theme-state');
+  if (!seg || !window.Theme) return;
+
+  var NAMES = { light: 'فاتح', dark: 'داكن' };
+
+  function sync() {
+    // عند مغادرة الصفحة نفصل المستمع حتى لا يتراكم
+    if (!seg.isConnected) { document.removeEventListener('themechange', sync); return; }
+    var m = Theme.mode();
+    seg.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.mode === m);
+    });
+    state.textContent = m === 'system'
+      ? 'يتبع إعداد الجهاز حالياً (' + NAMES[Theme.resolved()] + ')'
+      : 'مضبوط يدوياً على الوضع ' + NAMES[m];
+  }
+
+  seg.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-mode]');
+    if (b) Theme.set(b.dataset.mode);
+  });
+
+  document.addEventListener('themechange', sync);
+  sync();
+})();
+</script>
