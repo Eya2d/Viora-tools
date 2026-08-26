@@ -15,7 +15,7 @@
   var drop = $('drop'), file = $('file'), stage = $('stage'), statusEl = $('status'),
       bar = $('bar'), go = $('go'), cancelBtn = $('cancel'), dl = $('dl'), cp = $('cp'),
       out = $('out'), statsEl = $('stats'), swatches = $('swatches'),
-      viewSeg = $('view'), notices = $('notices');
+      viewSeg = $('view'), notices = $('notices'), colorBtn = $('color-file');
 
   /* حدّ عرض الـ SVG الحقيقي: فوقه نعرض معاينة نقطية بدلاً منه، لأن
      رسم عشرات آلاف المسارات يجمّد الخيط الرئيسي مهما كان الجهاز.  */
@@ -26,8 +26,8 @@
                       typeof createImageBitmap === 'function';
 
   var srcFile = null, img = null, imgURL = null, svgBlob = null, svgURL = null,
-      previewData = null, lastStats = null, heavy = false, forceExact = false,
-      worker = null, view = 'svg', timer = null, busy = false;
+      previewData = null, lastStats = null, lastPalette = [], heavy = false,
+      forceExact = false, worker = null, view = 'svg', timer = null, busy = false;
 
   /* ---------- المنزلقات ---------- */
   var sliders = { colors: 0, threshold: 0, simplify: 1, curve: 1, corner: 0, blur: 0, minarea: 0 };
@@ -279,7 +279,8 @@
     });
 
     swatches.innerHTML = '';
-    m.palette.forEach(function (c) {
+    lastPalette = m.palette || [];
+    lastPalette.forEach(function (c) {
       var sw = document.createElement('i');
       sw.style.background = c.color;
       sw.title = c.color;
@@ -426,6 +427,118 @@
       return { ok: false, reason: (e && e.message) || 'سبب غير معروف' };
     });
   }
+
+  /* ---------- ملف الألوان ---------- */
+  /* مستند HTML قائم بذاته: مربّع لكل لون وبجانبه كوده.
+     العناصر لا تُبنى دفعة واحدة بل على دفعات من ٣٠، وبين كل
+     دفعة والتي تليها ميلي ثانية واحدة، كي لا يتجمّد المتصفح
+     حين تكون الألوان بالمئات. */
+  var COLOR_BATCH = 30, COLOR_DELAY = 1;
+
+  function colorFileHTML(palette) {
+    var NL = String.fromCharCode(10);
+    var name = esc(baseName());
+    var colors = JSON.stringify(palette.map(function (c) { return c.color; }));
+    var L = [];
+
+    L.push('<!doctype html>');
+    L.push('<html lang="ar" dir="rtl">');
+    L.push('<head>');
+    L.push('<meta charset="utf-8">');
+    L.push('<meta name="viewport" content="width=device-width,initial-scale=1">');
+    L.push('<title>ألوان ' + name + '</title>');
+    L.push('<style>');
+    L.push('  :root{color-scheme:light dark;--bg:#fff;--fg:#111;--muted:#6b7280;--line:#e5e7eb;--card:#fafafa}');
+    L.push('  @media (prefers-color-scheme:dark){');
+    L.push('    :root{--bg:#111418;--fg:#e8eaed;--muted:#9aa0a6;--line:#2a2f36;--card:#181c22}');
+    L.push('  }');
+    L.push('  *{box-sizing:border-box}');
+    L.push('  body{margin:0;padding:28px 20px;background:var(--bg);color:var(--fg);');
+    L.push('       font:15px/1.7 system-ui,"Segoe UI",Tahoma,sans-serif}');
+    L.push('  h1{margin:0 0 4px;font-size:20px}');
+    L.push('  p.sub{margin:0 0 22px;color:var(--muted);font-size:13px}');
+    L.push('  ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;');
+    L.push('     grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}');
+    L.push('  li{display:flex;align-items:center;gap:10px;padding:8px 10px;direction:ltr;');
+    L.push('     background:var(--card);border:1px solid var(--line);border-radius:9px;');
+    L.push('     animation:in .18s ease both}');
+    L.push('  @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}');
+    L.push('  li i{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);');
+    L.push('       flex:none;display:block}');
+    L.push('  code{font:13px ui-monospace,Consolas,monospace;text-transform:uppercase;flex:1}');
+    L.push('  .n{color:var(--muted);font-size:11px}');
+    L.push('  #loading{color:var(--muted);font-size:13px;margin-top:14px}');
+    L.push('</style>');
+    L.push('</head>');
+    L.push('<body>');
+    L.push('<h1>ألوان ' + name + '</h1>');
+    L.push('<p class="sub"><b id="count">0</b> من ' + palette.length + ' لوناً — مستخرجة من الصورة عند التحويل إلى SVG.</p>');
+    L.push('<ul id="list"></ul>');
+    L.push('<p id="loading">جارٍ عرض الألوان…</p>');
+
+    /* السكربت الذي يبني العناصر على دفعات */
+    L.push('<script>');
+    L.push('(function () {');
+    L.push('  var COLORS = ' + colors + ';');
+    L.push('  var STEP = ' + COLOR_BATCH + ', DELAY = ' + COLOR_DELAY + ';');
+    L.push('  var list = document.getElementById("list");');
+    L.push('  var counter = document.getElementById("count");');
+    L.push('  var loading = document.getElementById("loading");');
+    L.push('  var i = 0;');
+    L.push('  function batch() {');
+    L.push('    var frag = document.createDocumentFragment();');
+    L.push('    var end = Math.min(i + STEP, COLORS.length);');
+    L.push('    for (; i < end; i++) {');
+    L.push('      var li = document.createElement("li");');
+    L.push('      var box = document.createElement("i");');
+    L.push('      box.style.background = COLORS[i];');
+    L.push('      var code = document.createElement("code");');
+    L.push('      code.textContent = COLORS[i];');
+    L.push('      var num = document.createElement("span");');
+    L.push('      num.className = "n";');
+    L.push('      num.textContent = i + 1;');
+    L.push('      li.appendChild(box); li.appendChild(code); li.appendChild(num);');
+    L.push('      frag.appendChild(li);');
+    L.push('    }');
+    L.push('    list.appendChild(frag);');
+    L.push('    counter.textContent = i;');
+    L.push('    if (i < COLORS.length) setTimeout(batch, DELAY);');
+    L.push('    else loading.hidden = true;');
+    L.push('  }');
+    L.push('  batch();');
+    L.push('})();');
+    L.push('<' + '/script>');
+
+    L.push('</body>');
+    L.push('</html>');
+
+    return L.join(NL) + NL;
+  }
+
+  function esc(t) {
+    return String(t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  if (colorBtn) colorBtn.addEventListener('click', function () {
+    if (!lastPalette.length) { flash(colorBtn, 'لا توجد ألوان بعد'); return; }
+
+    var blob = new Blob([colorFileHTML(lastPalette)], { type: 'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'color.html';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+
+    flash(colorBtn, 'تم التنزيل ✓');
+    note('<b>تم تنزيل color.html</b> · ' + lastPalette.length + ' لوناً · ' + kb(blob.size) +
+         ' — تُعرض على دفعات من ' + COLOR_BATCH + '.');
+  });
 
   cp.addEventListener('click', function () {
     if (!svgBlob) return;
