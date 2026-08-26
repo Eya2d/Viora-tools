@@ -511,6 +511,10 @@ select:focus,input[type=number]:focus{border-color:var(--accent)}
   background:var(--hover);color:var(--muted);font-size:12px;line-height:1.6;
 }
 .notice b{color:var(--text)}
+.ssdde {
+  margin-top: 12px;
+  display: none;
+}
 .buttone, .ssdde {
   border:1px solid var(--line);background:var(--card);color:var(--text);
   border-radius:8px;padding:5px 11px;font:inherit;font-size:12px;cursor:pointer;
@@ -636,3 +640,7 @@ input[type=text]:focus{border-color:var(--accent)}
   }
 }
 
+
+/* زر ملف الألوان: يبقى مخفيّاً بقاعدة .ssdde حتى يُنشَأ الناتج،
+   فيضيف السكربت الصنف .on — ومُحدِّد (معرّف + صنف) يتغلّب عليها. */
+#color-file.on{display:inline-block}
