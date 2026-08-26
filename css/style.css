@@ -43,7 +43,7 @@ body{
   font-family:"Segoe UI",Tahoma,system-ui,sans-serif;
   background:var(--bg);
   color:var(--text);
-  min-height:100dvh;
+  /* min-height:100dvh; */
   height: 100dvh;
   -webkit-tap-highlight-color: transparent;
   /* transition:background .3s ease,color .3s ease; */
@@ -511,11 +511,11 @@ select:focus,input[type=number]:focus{border-color:var(--accent)}
   background:var(--hover);color:var(--muted);font-size:12px;line-height:1.6;
 }
 .notice b{color:var(--text)}
-.notice button{
+.buttone, .ssdde {
   border:1px solid var(--line);background:var(--card);color:var(--text);
   border-radius:8px;padding:5px 11px;font:inherit;font-size:12px;cursor:pointer;
 }
-.notice button:hover{border-color:var(--accent);color:var(--accent)}
+.buttone:hover, .ssdde:hover{border-color:var(--accent);color:var(--accent)}
 .notice.warn{border-color:#b4791f;background:rgba(217,143,42,.10)}
 
 #cancel{display:none}
@@ -635,3 +635,4 @@ input[type=text]:focus{border-color:var(--accent)}
     width: 40px;
   }
 }
+
