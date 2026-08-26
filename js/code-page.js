@@ -462,7 +462,7 @@
     L.push('  p.sub{margin:0 0 22px;color:var(--muted);font-size:13px}');
     L.push('  ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;');
     L.push('     grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}');
-    L.push('  li{display:flex;align-items:center;gap:10px;padding:8px 10px;direction:ltr;');
+    L.push('  li{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;direction:ltr;');
     L.push('     background:var(--card);border:1px solid var(--line);border-radius:9px;');
     L.push('     animation:in .18s ease both}');
     L.push('  @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}');
