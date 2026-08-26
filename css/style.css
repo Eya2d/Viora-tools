@@ -43,8 +43,8 @@ body{
   font-family:"Segoe UI",Tahoma,system-ui,sans-serif;
   background:var(--bg);
   color:var(--text);
-  /* min-height:100dvh; */
-  height: 100vh;
+  min-height:100dvh;
+  height: 100dvh;
   -webkit-tap-highlight-color: transparent;
   /* transition:background .3s ease,color .3s ease; */
 }
