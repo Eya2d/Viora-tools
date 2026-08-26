@@ -280,6 +280,8 @@
 
     swatches.innerHTML = '';
     lastPalette = m.palette || [];
+    /* الزر لا يظهر إلا بعد إنشاء الناتج فعلاً */
+    if (colorBtn) colorBtn.classList.toggle('on', !!lastPalette.length);
     lastPalette.forEach(function (c) {
       var sw = document.createElement('i');
       sw.style.background = c.color;
@@ -320,6 +322,7 @@
                       'الملف نفسه كامل الدقة وجاهز للتنزيل.</span>';
       var b = document.createElement('button');
       b.textContent = 'عرض الـ SVG الفعلي احتمال (تجمد)';
+      b.className = 'buttone';
       b.onclick = function () { showResult(true); };
       box.appendChild(b);
       notices.appendChild(box);
@@ -455,7 +458,7 @@
     L.push('  *{box-sizing:border-box}');
     L.push('  body{margin:0;padding:28px 20px;background:var(--bg);color:var(--fg);');
     L.push('       font:15px/1.7 system-ui,"Segoe UI",Tahoma,sans-serif}');
-    L.push('  h1{margin:0 0 4px;font-size:20px}');
+    L.push('  h1{margin: 0 0 4px; font-size: 20px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; width: 250px}');
     L.push('  p.sub{margin:0 0 22px;color:var(--muted);font-size:13px}');
     L.push('  ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;');
     L.push('     grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}');
@@ -471,7 +474,7 @@
     L.push('</style>');
     L.push('</head>');
     L.push('<body>');
-    L.push('<h1>ألوان ' + name + '</h1>');
+    L.push('<h1>ألوان<br>' + name + '</h1>');
     L.push('<p class="sub"><b id="count">0</b> من ' + palette.length + ' لوناً — مستخرجة من الصورة عند التحويل إلى SVG.</p>');
     L.push('<ul id="list"></ul>');
     L.push('<p id="loading">جارٍ عرض الألوان…</p>');
